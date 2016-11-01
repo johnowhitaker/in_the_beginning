@@ -1,0 +1,84 @@
+#!/usr/bin/ruby 
+#r = Array.new
+#r = [0, 1, 2, 3, 4, 5, 6, 7,8, 9, 'A', 'B', 'C', 'D', 'E', 'F']
+#r2 = Array.new
+#r2 = [0, 2, 4, 5, 6, 8]
+#@mac = (r[rand(16)]).to_s + (r2[rand(6)]).to_s + ':' + (r[rand(16)]).to_s + (r[rand(16)]).to_s + ':' + (r[rand(16)]).to_s + (r[rand(16)]).to_s + ':' + (r[rand(16)]).to_s + (r[rand(16)]).to_s + ':' + (r[rand(16)]).to_s + (r[rand(16)]).to_s + ':' + (r[rand(16)]).to_s + (r[rand(16)]).to_s
+#`sudo ifconfig wlan0 down`
+#`sudo ifconfig wlan0  hw ether #{@mac} `
+#`sudo ifconfig wlan0 up`
+#puts @mac
+require 'green_shoes'
+
+Shoes.app height: 310, width: 250 do
+  def draw_background
+    background rgb(230, 240, 200)
+
+    fill white
+    stroke black
+    strokewidth 4
+    oval @centerx - 102, @centery - 102, 204, 204
+
+    fill black
+    nostroke
+    oval @centerx - 5, @centery - 5, 10, 10
+
+    stroke black
+    strokewidth 1
+    line(@centerx, @centery - 102, @centerx, @centery - 95)
+    line(@centerx - 102, @centery, @centerx - 95, @centery)
+    line(@centerx + 95, @centery, @centerx + 102, @centery)
+    line(@centerx, @centery + 95, @centerx, @centery + 102)
+  end
+  
+  def clock_hand(time, sw, unit=30, color=black)
+    radius_local = unit == 30 ? @radius : @radius - 15
+    _x = radius_local * Math.sin( time * Math::PI / unit )
+    _y = radius_local * Math.cos( time * Math::PI / unit )
+    stroke color
+    strokewidth sw
+    line @centerx, @centery, @centerx + _x, @centery - _y, hidden: true
+  end
+  
+  @radius, @centerx, @centery = 90, 126, 140
+  draw_background
+  stack do
+    background black
+    @msg = para '', margin: 4, align: 'center'
+  end
+  hour, min, sec = [], [], []
+  12.times{|i| 5.times{|j| hour << clock_hand(i+(j/5.0), 8, 6)}}
+  60.times{|i| 4.times{|j| min << clock_hand(i+(j/4.0), 5)}}
+  60.times{|i| 8.times{|j| sec << clock_hand(i+(j/8.0), 2, 30, red)}}
+
+  animate 8 do |i|
+    t = Time.new
+    h, m, s, u = t.hour, t.min, t.sec, t.usec
+    if i % 8 == 0
+      @msg.text = fg(t.strftime("%a"), tr_color(limegreen)) +
+        fg(t.strftime(" %b %d, %Y "), tr_color(limegreen)) +
+        strong(fg(t.strftime("%I:%M"), limegreen)) +
+        fg(t.strftime(".%S"), tr_color(limegreen))
+	#mystuff
+	timesecs = (Time.now.day*24*60*60)+(Time.now.hour*60*60)+(Time.now.min*60)+(Time.now.sec)
+	timend = (20*60*60*24+13*60*60)
+	timeleftsecs = timend-timesecs
+	days = timeleftsecs/(60*60*24)
+	hours = (timeleftsecs-(days*24*60*60))/(60*60)
+	mins = (timeleftsecs-(days*24*60*60)-(hours*60*60))/(60)
+	secs = (timeleftsecs-(days*24*60*60)-(hours*60*60)-(mins*60))
+	@timeleft.replace "#{days} days, #{hours} hours, #{mins} mins and #{secs} seconds left of school"
+    end
+    t = h*5+m/12; hour[(t-1)%60].hide; hour[t%60].show
+    t = m*4+s/15; min[(t-1)%240].hide; min[t%240].show 
+    t = s*8+u/125000; sec.each(&:hide); sec[t%480].show  
+  end
+  
+	stack height: 230 do
+	  
+  end
+  stack do
+  @timeleft = para "f"
+  @timeleft.style fill: blue
+  end
+end
