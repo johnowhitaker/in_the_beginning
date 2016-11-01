@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=Collide
+Comment=Whatever comment you want
+Exec=python /home/<your-user-name>/Software/collide/collide.py
+Icon=/home/<your-user-name>/Software/collide/icon.png
+Categories=Game;
+
